@@ -1,0 +1,19 @@
+flowchart TB
+  subgraph local[本机]
+    UI[Vue前端 static]
+    API[Python后端 app.py]
+    AG[agent.py 工具调度与报告校验]
+    TOOL[planner.py 专科计算]
+    SEARCH[evidence.py 病例检索]
+    DB[(SQLite运行记录)]
+    CORPUS[(data/evidence 检索库)]
+    CONF[settings.py 后端私有配置]
+    UI <-->|HTTP JSON| API
+    API --> AG
+    AG --> TOOL
+    AG --> SEARCH
+    SEARCH --> CORPUS
+    API <--> DB
+    CONF --> AG
+  end
+  AG <-->|HTTPS| LLM[DeepSeek API]

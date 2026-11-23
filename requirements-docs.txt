@@ -1,0 +1,2 @@
+# Optional: redraw PNG charts and diagrams. The application needs no packages.
+Pillow

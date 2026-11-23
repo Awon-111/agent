@@ -1,0 +1,11 @@
+{
+  "description": "固定参数的软件复算样本，不是真实患者记录。",
+  "cases": [
+    {"code":"SPINE-BASE","scenario":"spine","age":32,"sex":"female","measurements":{"cobb_angle":48,"flexibility_pct":55,"coronal_balance_mm":28,"apex_region":"thoracic"}},
+    {"code":"SPINE-LOW-FLEX","scenario":"spine","age":32,"sex":"female","measurements":{"cobb_angle":70,"flexibility_pct":15,"coronal_balance_mm":28,"apex_region":"thoracic"}},
+    {"code":"HIP-BASE","scenario":"joint","age":60,"sex":"female","measurements":{"joint_type":"hip","bone_diameter_mm":52,"canal_width_mm":13,"offset_mm":42,"bone_quality":"normal"}},
+    {"code":"KNEE-BASE","scenario":"joint","age":60,"sex":"female","measurements":{"joint_type":"knee","bone_diameter_mm":66,"canal_width_mm":12,"bone_quality":"normal"}},
+    {"code":"TRAUMA-INTACT","scenario":"trauma","age":35,"sex":"male","measurements":{"fracture_site":"tibia","fracture_pattern":"comminuted","displacement_mm":18,"articular_involvement":true,"soft_tissue":"intact"}},
+    {"code":"TRAUMA-COMPROMISED","scenario":"trauma","age":35,"sex":"male","measurements":{"fracture_site":"tibia","fracture_pattern":"comminuted","displacement_mm":18,"articular_involvement":true,"soft_tissue":"compromised"}}
+  ]
+}

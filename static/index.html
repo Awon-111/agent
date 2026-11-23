@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>ORTHO AGENT · 骨科规划智能体</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div id="app" v-cloak>
+<div class="workspace-root" :class="{'detail-workspace':view==='detail'}">
+  <aside class="sidebar">
+    <a class="brand" href="#" @click.prevent="go('new')"><span class="brand-mark"><icon name="cross"></icon></span><span>ORTHO<span class="brand-light">AGENT</span><small>骨科规划智能体</small></span></a>
+    <div class="nav-caption">工作空间 <span>WORKSPACE</span></div>
+    <nav aria-label="主导航">
+      <button :class="['nav-item',{active:view==='new'||view==='detail'}]" @click="go('new')"><icon name="spark"></icon><span>智能体工作台</span><icon name="chevron" class="nav-chevron"></icon></button>
+      <button :class="['nav-item',{active:view==='cases'}]" @click="showCases"><icon name="folder"></icon><span>病例档案</span><small>{{ cases.length }}</small></button>
+      <button :class="['nav-item',{active:view==='evidence'}]" @click="showEvidence"><icon name="search"></icon><span>公开病例证据库</span></button>
+      <button :class="['nav-item',{active:view==='settings'}]" @click="showSettings"><icon name="settings"></icon><span>服务状态</span><span v-if="!config.configured" class="nav-alert"></span></button>
+    </nav>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-specialties"><span>支持的专科场景</span><p v-for="s in scenarios" :key="s.id"><icon :name="s.icon"></icon>{{ s.name }}<small>{{ s.subtitle }}</small></p></div>
+    <div class="sidebar-bottom">
+      <button class="model-status-card" @click="showSettings"><span class="model-symbol">D</span><span><strong>DeepSeek</strong><small><i :class="{connected:connectionState==='connected'&&config.configured}"></i>{{ connectionLabel }}</small></span><icon name="settings"></icon></button>
+      <div class="workspace-user"><span class="user-avatar">医</span><span>病例分析工作区<small>本地病例 · 人工复核</small></span><icon name="shield"></icon></div>
+    </div>
+  </aside>
+
+  <div class="main-shell">
+    <header class="topbar">
+      <div class="breadcrumb"><span>工作空间</span><icon name="chevron"></icon><strong>{{ view==='new'?'智能体工作台':view==='cases'?'病例档案':view==='evidence'?'公开病例证据库':view==='settings'?'服务状态':'病例分析' }}</strong></div>
+      <div class="topbar-actions"><span class="research-tag">辅助分析</span><span class="topbar-divider"></span><button class="connection-link" @click="showSettings"><i :class="{connected:connectionState==='connected'&&config.configured}"></i>{{ connectionLabel }}<icon name="chevron"></icon></button></div>
+    </header>
+    <main :class="{'service-view':view==='settings','detail-view':view==='detail'}">
+      <template v-if="view==='new'">
+        <div class="page-heading"><div><span class="eyebrow">规划工作台</span><h1>新建智能体分析</h1><p>录入人工确认的测量值，查看工具计算、模型解释与人工复核结果。</p></div><button class="secondary" @click="showCases"><icon name="folder"></icon>查看病例档案</button></div>
+        <div v-if="!configLoading&&!config.configured" class="connection-banner"><span class="banner-icon"><icon name="key"></icon></span><div><strong>本地规则演示可用 · 未调用 LLM</strong><p>可以直接生成候选方案与规则说明。配置后端模型服务后，可启用 DeepSeek 智能体。</p></div><button class="banner-action" @click="showSettings">查看服务状态<icon name="arrow"></icon></button></div>
+        <div class="new-layout">
+          <form class="surface case-form" @submit.prevent="createCase">
+            <div class="panel-heading"><div><span class="section-index">01</span><h2>准备病例数据</h2></div><button type="button" class="text-button" @click="fillSample"><icon name="refresh"></icon>填入示例</button></div>
+            <div class="scenario-tabs" aria-label="专科场景"><button v-for="s in scenarios" :key="s.id" type="button" :class="{selected:scenario===s.id}" :aria-pressed="scenario===s.id" @click="changeScenario(s.id)"><icon :name="s.icon"></icon><strong>{{ s.name }}</strong><small>{{ s.subtitle }}</small></button></div>
+            <div class="field-section-heading"><h3>基本信息</h3><span>使用匿名病例编号</span></div>
+            <div class="form-grid base-fields">
+              <label class="case-code">病例编号 <span class="required">*</span><input v-model.trim="form.code" placeholder="例如 DEMO-2026-001" minlength="2" maxlength="32" required></label>
+              <label>年龄 <span class="required">*</span><div class="input-unit"><input v-model.number="form.age" type="number" min="1" max="120" step="1" required><span>岁</span></div></label>
+              <label>性别<select v-model="form.sex"><option value="female">女</option><option value="male">男</option><option value="other">其他 / 未说明</option></select></label>
+            </div>
+            <div class="field-section-heading"><h3>{{ scenarioInfo.name }}测量参数</h3><span>请录入人工确认的测量值</span></div>
+            <div class="form-grid measure-fields">
+              <template v-for="field in activeFields" :key="field.key">
+                <label v-if="field.type!=='checkbox'">{{ field.label }}<select v-if="field.type==='select'" v-model="measurements[field.key]"><option v-for="o in field.options" :key="o[0]" :value="o[0]">{{ o[1] }}</option></select><div v-else class="input-unit"><input v-model.number="measurements[field.key]" type="number" :min="field.min" :max="field.max" :step="field.step||0.1" required><span>{{ field.unit }}</span></div></label>
+                <label v-else class="checkbox-field"><input v-model="measurements[field.key]" type="checkbox"><span><strong>{{ field.label }}</strong><small>用于固定方案分析与风险提醒</small></span></label>
+              </template>
+            </div>
+            <label class="clinical-summary">匿名临床摘要（可选）<textarea v-model.trim="form.clinical_summary" rows="4" maxlength="3000" placeholder="主诉、病程、检查结论、既往治疗、合并症及功能诉求。请勿填写姓名、电话、身份证号等身份信息。"></textarea><small>帮助检索参考病例与识别信息缺口。启用 DeepSeek 时摘要随病例参数发送。</small></label>
+            <div class="input-note"><icon name="info"></icon><p>{{ config.configured?'匿名病例参数会发送至 DeepSeek 用于分析。影像附件仅本地存档，不发送给模型。':'本地演示在后端运行专科规则，不向 DeepSeek 发送病例。影像附件仅供人工查看。' }}</p></div>
+            <button class="primary launch-button" type="submit" :disabled="busy||configLoading"><icon :name="busy?'refresh':'spark'" :class="{spin:busy}"></icon>{{ busy?'正在创建并启动…':config.configured?'启动智能体分析':'生成本地演示方案' }}<icon name="arrow" class="launch-arrow"></icon></button>
+            <p v-if="!config.configured&&!configLoading" class="form-footnote">当前使用专科工具与固定规则说明，未调用 LLM。<button type="button" class="inline-link" @click="showSettings">启用 DeepSeek</button></p>
+            <p v-else class="form-footnote"><icon name="lock"></icon>病例与执行记录保存在本机，分析结果须经人工复核。</p>
+          </form>
+
+          <aside class="intro-column">
+            <section class="surface tool-guide">
+              <div class="panel-heading"><div><span class="source-icon teal"><icon name="tool"></icon></span><h2>{{ scenarioInfo.name }}工具</h2></div><span class="outline-tag">既定规则</span></div>
+              <p class="guide-method">{{ sceneGuide.method }}</p>
+              <div class="guide-group"><h3>本次分析将生成</h3><ul><li v-for="item in sceneGuide.outputs" :key="item"><icon name="check"></icon>{{ item }}</li></ul></div>
+              <div class="guide-group guide-checks"><h3>录入前核对</h3><p v-for="item in sceneGuide.checks" :key="item"><icon name="info"></icon>{{ item }}</p></div>
+              <p class="guide-footnote">{{ config.configured?'模型整理解释，专科工具提供数值，最终方案由人工复核。':'本地模板说明工具结果，未调用 LLM，最终方案由人工复核。' }}</p>
+            </section>
+            <section class="surface recent-panel">
+              <div class="panel-heading"><div><icon name="folder"></icon><h2>最近病例</h2></div><button class="text-button" @click="showCases">查看全部<icon name="chevron"></icon></button></div>
+              <button v-for="c in cases.slice(0,3)" :key="c.id" class="recent-case" @click="safeShowDetail(c.id)"><span :class="['specialty-icon',c.scenario]"><icon :name="scenarioById(c.scenario).icon"></icon></span><span><strong>{{ c.code }}</strong><small>{{ c.scenario_label }} · {{ c.plan_count }} 个版本</small></span><span :class="['status-badge',c.latest_plan_status||'empty']">{{ statusLabel(c.latest_plan_status) }}</span></button>
+              <p v-if="!cases.length" class="recent-empty">暂无病例。填写左侧数据，或先使用示例参数。</p>
+            </section>
+            <p class="scope-note"><icon name="shield"></icon>规则计算与示例器械目录，评分不代表临床成功率。</p>
+          </aside>
+        </div>
+      </template>
+
+      <template v-if="view==='evidence'">
+        <div class="page-heading"><div><span class="eyebrow">CASE EVIDENCE</span><h1>公开病例证据库</h1><p>从公开病例中寻找参考，回到原文核对适用条件。</p></div></div>
+        <section class="surface evidence-panel"><h2>{{ evidenceStatus.count }} 篇病例参考</h2><p>{{ evidenceStatus.notice }}</p><p v-if="evidenceStatus.error" role="alert">{{ evidenceStatus.error }}</p><p>公开病例参考库 · 按文章去重 · 未进行模型权重训练</p><p v-for="source in evidenceStatus.datasets||[]" :key="source.name">{{ source.name }}：{{ source.count }} 篇 · {{ source.license }}　<a :href="source.repository" target="_blank" rel="noopener noreferrer">GitHub 来源 ↗</a></p><p><span v-for="s in scenarios" :key="s.id">{{ s.name }} {{ evidenceStatus.scenarios?.[s.id]||0 }} 篇　</span></p><p>含非商业许可资料，请遵守对应来源的非商业与相同方式共享要求。各病例保留原文出处与对应许可。</p>
+          <form class="evidence-search" @submit.prevent="searchEvidence"><select v-model="evidenceScenario" aria-label="检索场景"><option v-for="s in scenarios" :value="s.id">{{ s.name }}</option></select><input v-model="evidenceQuery" maxlength="1000" placeholder="输入部位或病情，如胫骨、感染、hip" aria-label="检索病例关键词"><button class="primary" :disabled="evidenceBusy">{{ evidenceBusy?'检索中…':'检索病例' }}</button></form>
+          <p v-if="!evidenceItems.length&&!evidenceBusy">没有匹配的参考病例。请调整关键词或扩充病例库。</p>
+          <article v-for="item in evidenceItems" :key="item.id" class="evidence-card"><a :href="item.source_url" target="_blank" rel="noopener noreferrer">[{{ item.citation_id }}] {{ item.title }} ↗</a><p>{{ item.journal }} · {{ item.publication_date }} · {{ item.id }}</p><p>{{ item.applicability }}</p><details><summary>查看原始病例叙述</summary><p class="evidence-text">{{ item.case_text }}</p></details><small>{{ item.license }} · {{ item.attribution }}</small></article>
+        </section>
+      </template>
+      <template v-if="view==='cases'">
+        <div class="page-heading"><div><span class="eyebrow">CASE LIBRARY</span><h1>病例档案</h1><p>病例、智能体分析和人工复核，始终保持关联。</p></div><button class="primary" @click="go('new')"><icon name="plus"></icon>新建病例</button></div>
+        <div class="archive-summary"><div><span>全部病例</span><strong>{{ cases.length }}<small>份</small></strong></div><div><span>已通过复核</span><strong>{{ approvedCount }}<small>份</small></strong></div><div class="archive-summary-note"><icon name="folder"></icon><p>点击病例，查看对话、执行过程与报告版本。</p></div></div>
+        <div class="archive-toolbar"><label class="search-box"><icon name="search"></icon><input v-model="search" placeholder="搜索病例编号" aria-label="搜索病例编号"></label><div class="filter-pills"><button :class="{active:caseFilter==='all'}" @click="caseFilter='all'">全部</button><button v-for="s in scenarios" :key="s.id" :class="{active:caseFilter===s.id}" @click="caseFilter=s.id">{{ s.name }}</button></div></div>
+        <div class="case-table surface"><div class="case-table-head"><span>病例信息</span><span>创建时间 / 版本</span><span>最新报告状态</span><span></span></div><button v-for="c in filteredCases" :key="c.id" class="case-row" @click="safeShowDetail(c.id)"><span class="case-row-name"><span :class="['specialty-icon',c.scenario]"><icon :name="scenarioById(c.scenario).icon"></icon></span><span><strong>{{ c.code }}</strong><small>{{ c.scenario_label }} · {{ c.age }} 岁 · {{ sexLabel(c.sex) }}</small></span></span><span class="case-row-meta">{{ formatTime(c.created_at) }}<small>{{ c.plan_count }} 个方案版本</small></span><span><span :class="['status-badge',c.latest_plan_status||'empty']">{{ statusLabel(c.latest_plan_status) }}</span></span><icon name="chevron"></icon></button><div v-if="!filteredCases.length" class="empty-state"><span class="empty-icon"><icon name="folder"></icon></span><h3>{{ search?'没有找到匹配的病例':'从第一份病例开始' }}</h3><p>{{ search?'试试其他编号或切换专科筛选。':'创建病例，让智能体调用工具完成第一次分析。' }}</p><button class="secondary" @click="go('new')"><icon name="plus"></icon>新建病例</button></div></div>
+      </template>
+
+      <template v-if="view==='detail'&&detail">
+        <div class="detail-back"><button class="text-button" @click="showCases"><icon name="back"></icon>返回病例档案</button><span>病例分析工作台</span></div>
+        <div class="page-heading detail-heading"><div><span class="eyebrow">{{ scenarioById(detail.case.scenario).name }} / CASE ANALYSIS</span><h1>{{ detail.case.code }}<span :class="['status-badge',plan?.status||'empty']">{{ statusLabel(plan?.status) }}</span></h1><p>{{ detail.case.age }} 岁 · {{ sexLabel(detail.case.sex) }}<span class="meta-divider">|</span>{{ formatTime(detail.case.created_at) }} 创建</p></div><div class="detail-actions"><button class="secondary" @click="reanalyze" :disabled="busy||runBusy"><icon name="refresh" :class="{spin:runBusy}"></icon>{{ runBusy?'正在分析…':config.configured?'重新分析':'重新生成本地方案' }}</button><a v-if="plan" class="primary" :href="'/api/plans/'+plan.id+'/export'" target="_blank" rel="noopener"><icon name="report"></icon>导出报告</a></div></div>
+        <div v-if="!config.configured&&!configLoading" class="connection-banner compact"><icon name="key"></icon><div><strong>当前为本地规则演示</strong><p>分析和追问使用现有规则，未调用 LLM。可查看评分、生成报告并完成人工复核。</p></div><button class="banner-action" @click="showSettings">查看服务状态<icon name="arrow"></icon></button></div>
+        <div class="workspace-switch" role="tablist" aria-label="病例工作区">
+          <button type="button" role="tab" :aria-selected="workspacePane==='chat'" :class="{active:workspacePane==='chat'}" @click="workspacePane='chat'">智能体对话</button>
+          <button type="button" role="tab" :aria-selected="workspacePane==='report'" :class="{active:workspacePane==='report'}" @click="workspacePane='report'">病例分析</button>
+        </div>
+        <div :class="['agent-layout','mobile-'+workspacePane]">
+          <div class="conversation-column">
+            <section class="surface conversation-panel">
+              <div class="panel-heading conversation-heading"><div><span class="agent-avatar small"><icon name="spark"></icon></span><span><h2>智能体对话</h2><small>{{ localConversation?'基于现有规则说明依据与复核点，未调用 LLM':'追问基于当前病例与最新方案' }}</small></span></div><span :class="['status-badge',runBusy?'running':'neutral']"><i v-if="runBusy" class="pulse-dot"></i>{{ runBusy?'执行中':localConversation?'本地规则演示':'对话工作区' }}</span></div>
+              <div class="conversation" ref="conversationEl" tabindex="0" role="region" aria-label="智能体对话内容" aria-live="polite" :aria-busy="runBusy">
+                <div v-if="!runs.length" class="conversation-empty"><span class="agent-avatar"><icon name="spark"></icon></span><h3>{{ plan?'为这个病例开启智能体分析':'病例已就绪，等待启动' }}</h3><p>{{ config.configured?'智能体读取测量数据，调用专科工具，再生成有依据的报告草稿。':'直接运行专科工具，生成候选排序与固定规则说明；未调用 LLM。' }}</p><button class="secondary" @click="reanalyze" :disabled="busy||runBusy"><icon name="spark"></icon>{{ config.configured?'启动智能体分析':'生成本地演示方案' }}</button></div>
+                <article v-for="(run,index) in runs" :key="run.run_id||run.id" class="conversation-turn">
+                  <div class="user-message"><span class="message-author">你<span>{{ formatTime(run.created_at||run.started_at) }}</span></span><p>{{ run.question||'请分析本病例，调用专科工具并生成规划报告。' }}</p></div>
+                  <div class="assistant-message"><span class="assistant-mark"><icon name="spark"></icon></span><div class="assistant-message-body"><div class="assistant-author">{{ isLocalRun(run)?'本地规则助手':'骨科规划智能体' }}<span :class="['run-label',run.status]">{{ runLabel(run.status) }}</span></div>
+                    <details class="execution-trace" :open="run.status==='running'||(run.status==='failed'&&index===runs.length-1)"><summary><icon name="tool"></icon>执行过程<span>{{ (run.events||[]).length }} 条记录</span><icon name="chevron"></icon></summary><ol><li v-for="(event,i) in run.events||[]" :key="i" :class="event.type"><span class="trace-icon"><icon :name="eventIcon(event.type)"></icon></span><div><strong>{{ event.title }}</strong><p v-if="event.detail">{{ event.detail }}</p><time v-if="event.at">{{ formatTime(event.at) }}</time></div></li><li v-if="!(run.events||[]).length" class="trace-waiting"><span class="trace-icon"><icon name="clock"></icon></span><p>任务已提交，等待服务端执行记录。</p></li></ol></details>
+                    <div v-if="run.answer" class="answer-text">{{ run.answer }}</div><p v-if="run.quality_notice" class="run-error" role="note"><icon name="info"></icon>{{ run.quality_notice }}</p>
+                    <div v-if="run.status==='running'" class="thinking-status"><span class="loading-dots"><i></i><i></i><i></i></span><span>{{ run.events?.some(e=>e.type==='repair')?'正在自动整理报告格式与引用，请稍候…':isLocalRun(run)?'正在运行本地专科工具…':'正在等待模型或工具返回，请稍候…' }}</span></div>
+                    <div v-if="run.status==='failed'" class="run-error"><icon name="info"></icon><div><strong>{{ index===runs.length-1?'本次执行未完成':'此前任务未完成' }}</strong><p>{{ failureDescription(run) }}</p><button class="inline-link" @click="retryRun(run)" :disabled="busy||runBusy">{{ run.kind==='chat'?'重试此追问':'重试生成报告' }}</button><button class="inline-link fallback-action" @click="useLocalRules(run)" :disabled="busy||runBusy">用本地规则生成</button></div></div>
+                    <div v-if="run.status==='completed'" class="message-footer"><span v-if="run.plan_id"><icon name="report"></icon>已保存报告版本</span><span v-if="isLocalRun(run)">本地规则演示 · 未调用 LLM</span><span v-else-if="run.usage?.total_tokens">{{ run.usage.total_tokens }} tokens</span><span v-if="index===runs.length-1">可继续追问</span></div>
+                  </div></div>
+                </article>
+              </div>
+              <div v-if="pollError" class="poll-error" role="alert"><p>{{ pollError }}</p><button class="inline-link" @click="resumePolling">恢复查看</button></div>
+              <div class="chat-area"><div class="suggested-questions"><button @click="sendChat('请解释当前首选方案的评分是怎样计算出来的。')" :disabled="busy||runBusy">解释评分依据</button><button @click="sendChat('请结合工具结果说明本病例还需要人工复核哪些事项。')" :disabled="busy||runBusy">梳理复核要点</button></div><form class="chat-composer" @submit.prevent="sendChat()"><label class="sr-only" for="chat-input">向智能体追问</label><textarea id="chat-input" v-model="chatDraft" rows="2" maxlength="4000" :placeholder="localConversation?'询问评分依据、参数影响或复核事项，基于现有规则回答…':'继续追问方案依据、参数敏感性或复核事项…'" :disabled="busy||runBusy" @keydown.ctrl.enter.prevent="sendChat()"></textarea><div><span>Ctrl + Enter 发送</span><button type="submit" class="send-button" :disabled="busy||runBusy||!chatDraft.trim()" aria-label="发送消息"><icon name="send"></icon></button></div></form><p class="composer-note">{{ localConversation?'本地模式仅说明已有规则与结果，不能进行自由模型推理。':'测量值已按病例保存；需要修改参数时，请新建病例。' }}</p></div>
+            </section>
+
+          </div>
+
+          <div class="results-column">
+            <div class="results-heading"><h2><icon name="report"></icon>分析与报告</h2><select v-if="detail.plans.length" v-model="selectedPlanId" aria-label="切换方案版本"><option v-for="(p,i) in detail.plans" :key="p.id" :value="p.id">版本 {{ detail.plans.length-i }} · {{ p.result.agent?.source==='local_rules'?'本地演示':p.result.agent?'智能体':'历史规则' }} · {{ statusLabel(p.status) }}</option></select></div>
+            <div class="results-scroll" tabindex="0" role="region" aria-label="病例分析与报告内容">
+              <details class="case-support"><summary><icon name="folder"></icon>病例资料与操作记录<icon name="chevron"></icon></summary><div class="case-support-content">
+            <section class="surface context-panel"><div class="panel-heading"><div><icon name="report"></icon><h2>本次病例数据</h2></div><span class="outline-tag">人工确认输入</span></div><dl class="measurement-list"><div v-for="row in measurementRows" :key="row.label"><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div></dl><p v-if="detail.case.clinical_summary" class="small-note">匿名临床摘要：{{ detail.case.clinical_summary }}</p><div class="attachment-row"><span><icon name="image"></icon>影像附件<small>仅存档与人工查看，不发送给模型</small></span><label class="secondary upload-button"><icon name="upload"></icon>{{ detail.case.image_url?'替换附件':'上传附件' }}<input type="file" accept="image/png,image/jpeg" @change="uploadImage" :disabled="busy" aria-label="上传影像附件"></label></div><a v-if="detail.case.image_url" :href="detail.case.image_url" target="_blank" rel="noopener" class="attachment-preview"><img :src="detail.case.image_url" alt="病例影像附件"><span>查看完整影像<icon name="external"></icon></span></a><p class="small-note">支持 PNG / JPEG，不超过 5 MB。替换附件会更新本病例的当前影像。</p></section>
+            <details class="surface audit-panel"><summary><icon name="clock"></icon>病例操作记录<span>{{ detail.audit.length }} 条</span><icon name="chevron"></icon></summary><ol class="audit-list"><li v-for="(a,i) in detail.audit" :key="i"><strong>{{ auditLabel(a.action) }}</strong><time>{{ formatTime(a.at) }}</time><p>{{ a.detail }}</p></li></ol></details>
+              </div></details>
+            <div v-if="!plan" class="surface report-placeholder"><span class="report-sheet"><icon name="report"></icon><i></i><i></i><i></i></span><h3>{{ runBusy?'智能体正在准备报告':latestRun?.status==='failed'?'报告生成未完成':'报告将在分析完成后显示' }}</h3><p>{{ !runBusy&&latestRun?.status==='failed'?failureDescription(latestRun):config.configured?'这里会分别展示专科工具计算结果和 DeepSeek 的综合解释。':'这里会展示专科工具计算结果与本地规则说明，明确标注来源。' }}</p><button v-if="!runBusy&&latestRun?.status==='failed'" class="secondary" @click="retryRun(latestRun)" :disabled="busy"><icon name="refresh"></icon>重试生成报告</button><span v-if="runBusy" class="waiting-label"><i class="pulse-dot"></i>等待真实执行结果</span></div>
+            <template v-if="plan">
+              <div v-if="!result.agent" class="legacy-note"><icon name="info"></icon><p>此版本为历史规则方案，未调用 LLM。可重新分析并生成新的报告版本。</p></div>
+              <section v-if="result.agent_report" class="surface model-report"><div class="panel-heading"><div><span class="source-icon"><icon name="spark"></icon></span><h2>{{ isLocalReport?'本地规则说明':'DeepSeek 综合解释' }}</h2></div><span :class="['source-badge',isLocalReport?'tool':'model']">{{ isLocalReport?'未调用 LLM':'模型生成' }}</span></div><p class="report-overview">{{ result.agent_report.overview }}</p><div v-if="result.agent_report.recommendation" class="recommendation"><span>规划建议</span><p>{{ result.agent_report.recommendation }}</p></div><div v-if="result.agent_report.rationale?.length" class="report-section"><h3>推荐依据</h3><ul><li v-for="(item,i) in result.agent_report.rationale" :key="i">{{ item }}</li></ul></div><div v-if="result.agent_report.next_steps?.length" class="report-section"><h3>后续复核</h3><ul><li v-for="(item,i) in result.agent_report.next_steps" :key="i">{{ item }}</li></ul></div><details v-if="result.agent_report.limitations?.length" class="report-limitations"><summary><icon name="info"></icon>{{ isLocalReport?'规则说明与局限':'模型说明与局限' }}</summary><p v-for="(item,i) in result.agent_report.limitations" :key="i">{{ item }}</p></details><div class="report-provenance"><span>{{ isLocalReport?'生成来源：本地规则 · 未调用 LLM':result.agent.model }}</span><span>{{ formatTime(result.agent.generated_at) }}</span><span>版本 {{ selectedVersion }}</span></div></section>
+              <section v-if="result.evidence" class="surface evidence-panel"><div class="panel-heading"><h2>本次参考病例</h2><span class="outline-tag">{{ result.evidence.items.length }} 份</span></div><p>{{ result.evidence.notice }}</p><p v-if="!result.evidence.items.length">证据不足：未检索到匹配病例。</p><p v-if="isLocalReport">本地模式只展示检索结果，未进行模型病例对比。</p><ul v-if="result.agent_report?.case_comparison"><li v-for="line in result.agent_report.case_comparison">{{ line }}</li></ul><article v-for="item in result.evidence.items" :key="item.id" class="evidence-card"><a :href="item.source_url" target="_blank" rel="noopener noreferrer">[{{ item.citation_id }}] {{ item.title }} ↗</a><p>{{ item.publication_date }} · {{ item.id }} · {{ item.license }}</p><p>{{ item.applicability }}</p><details><summary>查看原始病例与文章节选</summary><p class="evidence-text">{{ item.case_text }}</p><p class="evidence-text">{{ item.article_excerpt }}</p></details></article></section>
+              <section class="surface tools-panel"><div class="panel-heading"><div><span class="source-icon teal"><icon name="tool"></icon></span><h2>专科工具结果</h2></div><span class="source-badge tool">确定性计算</span></div><p class="tool-summary">{{ result.summary }}</p><div class="metric-grid"><div v-for="m in result.metrics||[]" :key="m.label"><small>{{ m.label }}</small><strong>{{ m.value }}</strong></div></div><div class="options-list"><article v-for="(o,i) in result.ranked_options||[]" :key="o.name" :class="['option-row',{top:i===0}]"><div class="option-head"><span class="option-number">{{ String(i+1).padStart(2,'0') }}</span><h3>{{ o.name }}</h3><strong>{{ o.score }}<small>/ 100</small></strong></div><div class="score-track"><div :style="{width:Math.max(0,Math.min(100,o.score))+'%'}"></div></div><p>{{ o.reason }}</p><div v-if="o.deviations" class="deviation-row"><span>外径差 {{ o.deviations.diameter }} mm</span><span>髓腔差 {{ o.deviations.canal }} mm</span><span v-if="detail.case.measurements.joint_type==='hip'">偏心距差 {{ o.deviations.offset }} mm</span></div><details v-if="o.score_breakdown?.length" class="score-breakdown"><summary>查看评分明细</summary><div v-for="(item,j) in o.score_breakdown" :key="j"><span>{{ item.label }}</span><strong>{{ item.value>0?'+':'' }}{{ item.value }}</strong></div><p v-if="o.weighted_error!==undefined">加权误差：{{ o.weighted_error }}</p></details></article></div><p class="small-note">{{ result.score_note }}</p><details class="calculation-details"><summary>计算过程与算法说明<icon name="chevron"></icon></summary><p v-for="(item,i) in result.calculation||[]" :key="i">{{ item }}</p><p>{{ result.method }}</p><small>{{ result.model_version }}</small></details></section>
+              <section v-if="result.sensitivity" class="surface sensitivity-panel"><div class="panel-heading"><div><h2>参数敏感性分析</h2></div><span class="outline-tag">单因素</span></div><p class="small-note">{{ result.sensitivity.label }}变化时，{{ result.sensitivity.metric }}的响应</p><div class="sensitivity-chart" role="img" :aria-label="result.sensitivity.label+'敏感性分析柱状图'"><div v-for="(point,i) in result.sensitivity.points" :key="i"><strong>{{ point.y }}</strong><div class="bar-space"><div :style="{height:sensitivityHeight(point.y)+'%'}"></div></div><small>{{ point.x }}{{ result.sensitivity.unit }}</small></div></div><p class="small-note">{{ result.sensitivity.note }}</p></section>
+              <section class="surface review-panel"><div class="panel-heading"><div><span class="source-icon amber"><icon name="doctor"></icon></span><h2>人工复核</h2></div><span :class="['status-badge',plan.status]">{{ statusLabel(plan.status) }}</span></div><div v-for="(flag,i) in result.flags||[]" :key="i" class="risk-note"><icon name="info"></icon><p>{{ flag }}</p></div><div class="review-checks"><span v-for="(item,i) in result.required_review||[]" :key="i"><icon name="check"></icon>{{ item }}</span></div><form v-if="plan.status==='pending'" @submit.prevent="submitReview"><label>复核人<input v-model.trim="review.reviewer" placeholder="姓名或工号" minlength="2" maxlength="50" required></label><label>复核意见<textarea v-model.trim="review.note" rows="3" placeholder="记录复核依据或待补充的信息" minlength="2" maxlength="500" required></textarea></label><div class="review-decisions"><label :class="{chosen:review.status==='approved'}"><input v-model="review.status" type="radio" value="approved">通过</label><label :class="{chosen:review.status==='rejected'}"><input v-model="review.status" type="radio" value="rejected">退回</label></div><button class="primary full-width" type="submit" :disabled="busy||runBusy"><icon name="shield"></icon>提交复核并归档</button></form><div v-else class="review-record"><strong>{{ plan.reviewer }}</strong><time>{{ formatTime(plan.reviewed_at) }}</time><p>{{ plan.review_note }}</p><small>复核记录已归档，仅对应当前版本。</small></div></section>
+            </template>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-if="view==='settings'">
+        <div class="page-heading"><div><span class="eyebrow">后端运行环境</span><h1>模型服务状态</h1><p>查看当前配置、连接验证和可用能力。</p></div><button class="secondary" @click="go('new')"><icon name="back"></icon>返回工作台</button></div>
+        <section class="surface service-overview">
+          <div class="service-summary"><div class="provider-heading"><span class="provider-logo">D</span><div><h2>DeepSeek</h2><p>骨科规划智能体的模型服务</p></div></div><span :class="['status-badge',connectionState==='connected'&&config.configured?'approved':connectionState==='failed'?'rejected':'neutral']"><i :class="{connected:connectionState==='connected'&&config.configured}"></i>{{ connectionLabel }}</span></div>
+          <dl class="service-facts"><div><dt>当前模型</dt><dd>{{ config.model||'—' }}</dd></div><div><dt>配置来源</dt><dd>{{ configSourceLabel }}</dd></div><div><dt>最近验证</dt><dd>{{ config.last_tested_at?formatTime(config.last_tested_at):'尚未验证' }}</dd></div><div><dt>服务地址</dt><dd>{{ config.base_url||'—' }}</dd></div></dl>
+        </section>
+        <div class="service-body">
+          <section class="surface service-diagnostics">
+            <div class="panel-heading"><div><icon name="refresh"></icon><h2>连接诊断</h2></div><span class="outline-tag">服务端验证</span></div>
+            <div :class="['diagnostic-state',configError||connectionState==='failed'?'failed':connectionState==='connected'&&config.configured?'connected':'unverified']" role="status" aria-live="polite"><span class="diagnostic-icon"><icon :name="connectionState==='connected'&&config.configured?'check':connectionState==='testing'?'refresh':'info'" :class="{spin:connectionState==='testing'}"></icon></span><div><strong>{{ configError?'无法读取后端状态':connectionState==='testing'?'正在验证模型连接':!config.configured?'LLM 未连接 · 本地演示可用':connectionState==='connected'?'模型服务可用':connectionState==='failed'?'连接验证失败':'配置已读取，等待连接验证' }}</strong><p>{{ configError||connectionMessage||(!config.configured?'可直接使用本地规则分析与复核。需要 DeepSeek 智能体时，在后端 .env 配置密钥并重启服务。':connectionState==='connected'?'最近一次模型请求已成功返回，可进入工作台分析病例。':'测试会由后端向 DeepSeek 发送一次简短请求，以确认配置和网络可用。') }}</p></div></div>
+            <div class="service-actions"><button class="primary" @click="testConnection" :disabled="configBusy||configLoading||!config.configured"><icon name="refresh" :class="{spin:connectionState==='testing'}"></icon>{{ connectionState==='testing'?'正在测试…':'测试连接' }}</button><button class="secondary" @click="showSettings" :disabled="configBusy||configLoading"><icon name="refresh"></icon>刷新状态</button><button class="text-button" @click="go('new')">开始病例分析<icon name="arrow"></icon></button></div>
+            <p class="diagnostic-note">“已配置”只表示后端已读取密钥；连接验证成功后才显示服务可用。</p>
+          </section>
+          <section class="surface service-capabilities"><div class="panel-heading"><div><icon name="tool"></icon><h2>智能体工作方式</h2></div></div><dl><div><dt>工具计算</dt><dd>脊柱规划、假体匹配与内固定候选排序</dd></div><div><dt>解释来源</dt><dd>DeepSeek 引用工具结果；无密钥时使用本地规则模板</dd></div><div><dt>数据归档</dt><dd>病例、运行记录、报告与版本保存在本机</dd></div><div><dt>人工复核</dt><dd>通过或退回结论由复核人员提交</dd></div></dl></section>
+        </div>
+        <details class="surface deployment-details"><summary><icon name="settings"></icon><span>部署配置说明<small>仅部署维护时需要</small></span><icon name="chevron"></icon></summary><div class="deployment-content"><div><h3>在后端项目的 .env 中配置</h3><p>密钥和模型参数由后端读取，页面不接收、不保存，也不回显密钥。修改文件后重启 Python 服务，再刷新状态并测试连接。</p><p>已有进程环境变量会优先于 .env 生效。</p></div><pre><code>DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com</code></pre></div></details>
+      </template>
+      <footer class="page-footer"><span>ORTHO AGENT <i></i> 骨科规划智能体</span><span>辅助分析工作区 · 专科工具 + 依据说明 + 人工复核</span></footer>
+    </main>
+  </div>
+  <Transition name="toast"><div v-if="toastMessage" :class="['toast',{error:toastError}]" role="status" aria-live="polite"><icon :name="toastError?'info':'check'"></icon><span>{{ toastMessage }}</span><button @click="toastMessage=''" aria-label="关闭提示"><icon name="close"></icon></button></div></Transition>
+</div>
+</div>
+<script src="/static/vendor/vue.global.prod.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

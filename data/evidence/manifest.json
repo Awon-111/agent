@@ -1,0 +1,45 @@
+{
+  "dataset": "multiple",
+  "count": 1362,
+  "scenarios": {
+    "trauma": 572,
+    "spine": 190,
+    "joint": 600
+  },
+  "datasets": {
+    "zou-lab/MedCaseReasoning": 78,
+    "zhengyun21/PMC-Patients": 1284
+  },
+  "sources": [
+    {
+      "dataset": "zou-lab/MedCaseReasoning",
+      "revision": "469a5365bc534b5b2b9cfbc52b2ef2a10f43a339",
+      "url": "https://huggingface.co/datasets/zou-lab/MedCaseReasoning/resolve/469a5365bc534b5b2b9cfbc52b2ef2a10f43a339/medcasereasoning_core.csv?download=true",
+      "sha256": "887274683b81d81f48f335ff0f87d56dac6ed8ea09b4bb5aa2b3979f5a1a88b8",
+      "bytes": 205157823,
+      "license": "CC-BY-4.0",
+      "repository": "https://github.com/kevinwu23/Stanford-MedCaseReasoning"
+    },
+    {
+      "dataset": "zhengyun21/PMC-Patients",
+      "revision": "28d8836518f86d4f1e6358ea8ec09977023e5766",
+      "url": "https://huggingface.co/datasets/zhengyun21/PMC-Patients/resolve/28d8836518f86d4f1e6358ea8ec09977023e5766/PMC-Patients.csv?download=true",
+      "sha256": "97f41501c8fb05e1c5e0ec35b6509d0f354cca86777ae8db9ff2f204ce2eef20",
+      "bytes": 544883095,
+      "license": "CC-BY-NC-SA-4.0",
+      "repository": "https://github.com/pmc-patients/pmc-patients"
+    }
+  ],
+  "sha256": "c7564c14587cc9b4d276ca1982c4509bdc31ccbf3911f72a501ac535684de898",
+  "stats": {
+    "medcase_scanned": 14489,
+    "pmc_scanned": 167034,
+    "duplicate_article_rows_excluded": 246,
+    "pmc_heldout_excluded": 1,
+    "heldout_articles_excluded": 1397,
+    "medcase_training_rows": 13092
+  },
+  "created_at": "2026-11-18T14:30:24.100715+00:00",
+  "selection": "Title-only orthopedic classification; one narrative per article; medcase train only; all medcase val/test PMCIDs excluded from every source",
+  "purpose": "Research retrieval corpus, not trained weights or clinical efficacy validation"
+}

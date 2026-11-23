@@ -1,0 +1,33 @@
+# 验证与复现
+
+测试代码均位于 `main`：`tests.py`、`test_agent.py`、`test_evidence.py`、`test_expand_cases.py`、`test_report_recovery.py`。
+
+```bash
+python -B -m unittest discover -p "test*.py" -q
+```
+
+2026年11月23日，对准备发布的源码实际运行：**81 tests，OK，0失败、0错误**；本次记录耗时4.304秒。耗时会随计算机和环境改变，81项是该版本的用例数量，不是医学准确率。
+
+| 验证范围 | 主要观察 |
+| --- | --- |
+| 配置 | 私有文件解析、环境变量优先级、只读接口、密钥不回显 |
+| 规则 | 三类场景、尺寸差、条件增量、单因素变化及输入不变性 |
+| 模型协议 | 工具往返、场景限制、结构化报告和无Key分支 |
+| 报告恢复 | 空回复、截断、非法JSON、重复键、引用与输入复述冲突 |
+| 任务 | 总时限、并发、迟到响应与重启后的中断任务 |
+| 检索 | 场景/部位过滤、来源与许可、文章去重、引用和缓存隔离 |
+| 业务 | 病例、版本、复核、附件与HTML导出 |
+
+测试在临时配置、临时SQLite和本机协议服务上运行，不需要真实Key，不消耗API额度。真实DeepSeek联调、检索适用性和临床效果是不同验证任务。
+
+## 固定样本复算
+
+```bash
+python -B scripts/reproduce_results.py
+```
+
+读取 `examples/cases.json`，直接执行 `planner.py`，生成 `examples/results.json`。六组样本覆盖基础脊柱、大角度低柔韧性、髋、膝和两种软组织条件。脊柱敏感性固定Cobb48°，输出31.7、28.8、25.9、23.0、20.2、17.3°。
+
+## 自动化与交付检查
+
+`.github/workflows/tests.yml` 在Python3.11和3.13运行测试。`scripts/check_submission.py` 对照提交清单检查文件、哈希、公开数据统计及不应发布的私有文件。CI配置随本次提交提供；远端是否执行成功需以GitHub的实际运行状态为准。

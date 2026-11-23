@@ -1,0 +1,341 @@
+{
+  "repository": "https://github.com/Awon-111/agent",
+  "branch": "main",
+  "date": "2026-11-23",
+  "report": "docs/骨科规划智能体_实验报告.docx",
+  "tests": 81,
+  "scope": "Repository-relative published files. Runtime secrets, databases, uploads and logs excluded.",
+  "self_note": "This manifest is included in the ZIP but not recursively hashed within its own list.",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 243,
+      "sha256": "34c96fef1d3b17848714cc0750599cf90c65e87d5d5bef2d573fc246d1471f2f"
+    },
+    {
+      "path": ".gitattributes",
+      "bytes": 142,
+      "sha256": "45fc8d721087d95b439e7ba4ac6c0df2199452d01d821c89d97c2e5863444adf"
+    },
+    {
+      "path": ".github/workflows/tests.yml",
+      "bytes": 421,
+      "sha256": "53ed54f2e9027b43487377cb7d1c4e6473491685dddb674a07ae84b2a7ee403b"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 143,
+      "sha256": "4414a0e3c7a0d52cfafb579f4ebdee5d9bb36ea748f51830b2d582265b9c9fbe"
+    },
+    {
+      "path": "agent.py",
+      "bytes": 32593,
+      "sha256": "3cef0407f5a7fa48f2f98241dd087248aa20e5302c60ec52d267696d0368f934"
+    },
+    {
+      "path": "app.py",
+      "bytes": 32947,
+      "sha256": "6bd3022a3f785759a261ab272da6e60fd07bc28ed39c2cfe69d723ee1c7646f2"
+    },
+    {
+      "path": "data/evidence/cases.jsonl",
+      "bytes": 6340910,
+      "sha256": "c7564c14587cc9b4d276ca1982c4509bdc31ccbf3911f72a501ac535684de898"
+    },
+    {
+      "path": "data/evidence/manifest.json",
+      "bytes": 1824,
+      "sha256": "2e198a8b1375acb96215e088251e36b5701457a20fc77b87f3469f0da5893bca"
+    },
+    {
+      "path": "data/evidence/NOTICE.txt",
+      "bytes": 1958,
+      "sha256": "2e496e375b837fd5dfb924c5f22721788f1fdc3457566ba5beb385fee42a0a62"
+    },
+    {
+      "path": "data/evidence/source_catalog.json",
+      "bytes": 3294,
+      "sha256": "40d1aa536079507913cb86dd7f25f7cdbfdfa4b61c9982dc49e252081e208d42"
+    },
+    {
+      "path": "docs/API.md",
+      "bytes": 2150,
+      "sha256": "d95d73cbfdaa76253a7f91df37fcdbba2498da69ec5f974ffaa73428c6088e2b"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "bytes": 2792,
+      "sha256": "f79070bbf1000d1cd09df26f2efbabcb2cfda78cfbe5b597c5c10470ef433a9d"
+    },
+    {
+      "path": "docs/assets/analysis-workflow.png",
+      "bytes": 1725344,
+      "sha256": "fdd936cdcf89accf84431337a861fcbfe25df4528cd1bc170567e7fdc97ac04e"
+    },
+    {
+      "path": "docs/assets/architecture.png",
+      "bytes": 1291900,
+      "sha256": "cf503a9a3506618d4daf6438fbcf8fd0bb5f0e5fdb0fdbe889d8588fb1895bb1"
+    },
+    {
+      "path": "docs/assets/case-distribution.png",
+      "bytes": 80890,
+      "sha256": "08565a780173f8a44637981657887e2000b52735fff39b9188ff94934418af5a"
+    },
+    {
+      "path": "docs/assets/cobb-calculation.png",
+      "bytes": 98367,
+      "sha256": "290038d9ba9c5a0d5de04525ebcb7b6b4114bfeee543c0bd144f50454c90edb0"
+    },
+    {
+      "path": "docs/assets/evidence-pipeline.png",
+      "bytes": 129484,
+      "sha256": "91dbff594db032a0bd5fe3a7ab97f662082d7acea1ebb9bc11c1b09ee2bde765"
+    },
+    {
+      "path": "docs/assets/hip-matching.png",
+      "bytes": 45911,
+      "sha256": "9ebe7b1ed2303336191c6e6fff8c4f48544cc106907d9cf7999e7374f9a0c7b8"
+    },
+    {
+      "path": "docs/assets/mode-workflow.png",
+      "bytes": 80166,
+      "sha256": "7b55bac1c4e1f4c04e0de57cba563a8800b187a2d77e4c3fe30ee16543fe06cb"
+    },
+    {
+      "path": "docs/assets/report-recovery.png",
+      "bytes": 98797,
+      "sha256": "7a28f721a16f5e45c1d29c3cae91ccfadd5f65257374b6c67be98bcec51697cc"
+    },
+    {
+      "path": "docs/assets/repository-map.png",
+      "bytes": 80561,
+      "sha256": "cc464bd5b98c111a15149c8d26a65d79793c794bdc795dec9223aa08abc82d78"
+    },
+    {
+      "path": "docs/assets/spine-sensitivity.png",
+      "bytes": 73935,
+      "sha256": "fdafcc82fbb3c6cad23652813b1ddf8b7ae92850315833e0a9afeda548faee32"
+    },
+    {
+      "path": "docs/assets/trauma-comparison.png",
+      "bytes": 73091,
+      "sha256": "361d35118089b34a2993c27a0224fee2591e3b379d3f7a47a0f9ab4525ac2132"
+    },
+    {
+      "path": "docs/assets/ui-case-entry-current.png",
+      "bytes": 126187,
+      "sha256": "a299675fd4c79cdb6e5719086d7f45091bf912b96f108693d53c2841f4afc0b1"
+    },
+    {
+      "path": "docs/assets/ui-case-library-current.png",
+      "bytes": 74253,
+      "sha256": "9cf7b7d9d576e17dd98d6e1b06782fcb41f2cb9392c18221b26d8b46330c0780"
+    },
+    {
+      "path": "docs/assets/ui-evidence-library-current.png",
+      "bytes": 144106,
+      "sha256": "0d238c7129de2ba13230777024afcfea9c81f44e3e78307cfaca4e5837410e55"
+    },
+    {
+      "path": "docs/assets/ui-knee-results-current.png",
+      "bytes": 75772,
+      "sha256": "7a7fe2db7e0522de446d0e28539b8cc6f021c681b3be4c8eedfaa67a70ef60f5"
+    },
+    {
+      "path": "docs/assets/ui-review-record-current.png",
+      "bytes": 15811,
+      "sha256": "269d8c7756cc8a23bf5e7401e48b881790a1018469cc2cd662f01499d292ebd5"
+    },
+    {
+      "path": "docs/assets/ui-service-status-current.png",
+      "bytes": 75315,
+      "sha256": "840c3d7501d8ed380a7c8f038b90dffddcd7bdd9d2506876d6fcc7390cd146d1"
+    },
+    {
+      "path": "docs/DATA.md",
+      "bytes": 2316,
+      "sha256": "4eba5de9a0a6161f0b091a116bda134aa629caf276d2d89812047a270f93de57"
+    },
+    {
+      "path": "docs/diagrams/analysis-workflow.mmd",
+      "bytes": 462,
+      "sha256": "b0a9de81e36106f38befe624cc14b79cf3189d8ce09809d57065884a747d1da2"
+    },
+    {
+      "path": "docs/diagrams/architecture.mmd",
+      "bytes": 487,
+      "sha256": "24c94f27b35872897239bb97c0678aa58bb7191538ee5b796382678710af5483"
+    },
+    {
+      "path": "docs/diagrams/evidence-pipeline.mmd",
+      "bytes": 312,
+      "sha256": "a6a0cbccd99836d2361d204c577f0bce464a9a3bb57425a00cc985026371bc75"
+    },
+    {
+      "path": "docs/diagrams/report-recovery.mmd",
+      "bytes": 320,
+      "sha256": "488e6caad15fa7298b4f8f633ac2b4bf44743abad94cd14b70be0ac56912da6a"
+    },
+    {
+      "path": "docs/equations.tex",
+      "bytes": 178,
+      "sha256": "8b53451bcf28b49b02da80609a49727fb28654b72ea500556f6bdca48357d2c5"
+    },
+    {
+      "path": "docs/FIGURES.md",
+      "bytes": 2223,
+      "sha256": "c30a719e300e156b41a60f0fb5fd87397514b3fcea71bbe8076029c53a7509fe"
+    },
+    {
+      "path": "docs/REPORT_CHANGES.md",
+      "bytes": 1593,
+      "sha256": "e2812d4abe06b5d9ad2b89173320ab60ecfc2d707b83d3bad8e9b679c9acdcdf"
+    },
+    {
+      "path": "docs/SUBMISSION.md",
+      "bytes": 1250,
+      "sha256": "f1a90a08793f1bd72f8757da2d70b5ce9999daaa425afca0760da5df39c57a46"
+    },
+    {
+      "path": "docs/TESTING.md",
+      "bytes": 1918,
+      "sha256": "7545e00260c585f410865c3d3cfc4fa977ef42f052b3a16fd756cada19a4f849"
+    },
+    {
+      "path": "docs/USER_GUIDE.md",
+      "bytes": 2465,
+      "sha256": "931d54cced48a6a6c83ef89968342dab888bb1a0558557ee485a3a128b9b225c"
+    },
+    {
+      "path": "docs/骨科规划智能体_实验报告.docx",
+      "bytes": 2065718,
+      "sha256": "4c13c3869f28f29c252036bc895b4eb54e092d1ab1e0c18fbcc7f843270e71ed"
+    },
+    {
+      "path": "evidence.py",
+      "bytes": 7185,
+      "sha256": "1843a1848759dc5b3ab34cba8e69ceb97f22369c343f52582a3f50a4577149e8"
+    },
+    {
+      "path": "examples/cases.json",
+      "bytes": 1257,
+      "sha256": "a72e1a007f632911e18849ba04d8571d5483f1b0f249b22f8d9430525703876b"
+    },
+    {
+      "path": "examples/results.json",
+      "bytes": 23046,
+      "sha256": "0b2320b5160e63ea667450de148a8949d3df27ab0eec3452456ac8d174f54a79"
+    },
+    {
+      "path": "expand_cases.py",
+      "bytes": 12045,
+      "sha256": "39ccf465db8cad636c08fc006731d1cbb537bb9e9099f5108352d4525f0672af"
+    },
+    {
+      "path": "import_cases.py",
+      "bytes": 6450,
+      "sha256": "4ef178607e2e668e84455aed57c9209410988b33902b634390d5210031e2bd4c"
+    },
+    {
+      "path": "planner.py",
+      "bytes": 13165,
+      "sha256": "aa34371b288c5587a134e793ced8ebe98b96c2b7f523ac4b788dc657709ee749"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6285,
+      "sha256": "b63d9ce0327e133720e8742875766290347a59980837fab9a9bf080cd5711ba2"
+    },
+    {
+      "path": "requirements-docs.txt",
+      "bytes": 86,
+      "sha256": "248fa91eea6dc4a6e8c4edf4266135aa9752e60e8fa6fd451f5cd63c10a09f7a"
+    },
+    {
+      "path": "scripts/check_submission.py",
+      "bytes": 2492,
+      "sha256": "0987f70b8ab548b8d9ba9064171cab05315d75207e2ab62806d7b139ae9e5882"
+    },
+    {
+      "path": "scripts/generate_figures.py",
+      "bytes": 6161,
+      "sha256": "8f18b73d7003f2cc2bc2003ee0e64e1ffb89647ad038ebd81582d1298cb23559"
+    },
+    {
+      "path": "scripts/package_submission.py",
+      "bytes": 1241,
+      "sha256": "fbea27dae9a60263fce7380ace4b9f9fa7fdf9ab3dea938e94e69b1c7e09ecd5"
+    },
+    {
+      "path": "scripts/reproduce_results.py",
+      "bytes": 1219,
+      "sha256": "8e795df1adf78bfb0e8456480fddacdc3a8293cae94d1a786139d305e0111f47"
+    },
+    {
+      "path": "settings.py",
+      "bytes": 4983,
+      "sha256": "ff7c50d5283f9048fe5821b58f2e32e583f1291c3dc0a0acbad90286f69c48a5"
+    },
+    {
+      "path": "start.ps1",
+      "bytes": 221,
+      "sha256": "c14640d14519408b1cecf233a2af5c5ad868f06ec540b718d84a73fe374065a3"
+    },
+    {
+      "path": "static/app.js",
+      "bytes": 20076,
+      "sha256": "2775d4e6e2371a6190401c9787b923a070cdd402db28c76a5b4eea89c2f426c4"
+    },
+    {
+      "path": "static/index.html",
+      "bytes": 37167,
+      "sha256": "be4ed169a5a77bd4df2736893f268b91a62361b639164c019aa3187cd9f18054"
+    },
+    {
+      "path": "static/style.css",
+      "bytes": 65859,
+      "sha256": "ab2a22154505c9c63dbd5fdbfa4b7f419f590bc4e3da45e701da2e0bb011aaa6"
+    },
+    {
+      "path": "static/vendor/LICENSE-Vue.txt",
+      "bytes": 1158,
+      "sha256": "b4389d86fe3ecdb7aa6a0c82995a12b01f4f64a2b8819d38ca13753b2c7f6c91"
+    },
+    {
+      "path": "static/vendor/vue.global.prod.js",
+      "bytes": 170605,
+      "sha256": "e0a2a0866a8de8887542e24f3c218aad3d907b88f30966068792ba992296dc9f"
+    },
+    {
+      "path": "test_agent.py",
+      "bytes": 24500,
+      "sha256": "5e7085a7ce2d918d549e84ce7dd281cb094d16dccc02e9646f0909b2350bc3a0"
+    },
+    {
+      "path": "test_evidence.py",
+      "bytes": 6290,
+      "sha256": "6b00bc63581367f9717f74b3897d11ee390c5b7ae7d3ff11e77d4c394db8dae1"
+    },
+    {
+      "path": "test_expand_cases.py",
+      "bytes": 4616,
+      "sha256": "6ad6969e6efcab9983c049643dab2ddc2773ac0abb5a08cf8ed20108fb6b0711"
+    },
+    {
+      "path": "test_report_recovery.py",
+      "bytes": 5347,
+      "sha256": "f64d38574cce7349775bf94abe0b8c807681afab14e795ad8d8f054f8a1cf69d"
+    },
+    {
+      "path": "tests.py",
+      "bytes": 32120,
+      "sha256": "c57d3aed4e88948f31de18dd798544e4050e11e05d3912bcb3924bc74da7d08b"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 923,
+      "sha256": "88e1549cf37ff92dcc7391e9a464d48d87457d4ab6af255007c52b911dff0a6f"
+    }
+  ]
+}

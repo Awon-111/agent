@@ -1,0 +1,891 @@
+{
+  "source": "planner.py",
+  "inputs": "examples/cases.json",
+  "model_calls": 0,
+  "note": "规则复算结果；不表示临床成功率或临床验证。",
+  "cases": [
+    {
+      "code": "SPINE-BASE",
+      "scenario": "spine",
+      "input": {
+        "cobb_angle": 48,
+        "flexibility_pct": 55,
+        "coronal_balance_mm": 28,
+        "apex_region": "thoracic"
+      },
+      "metrics": [
+        {
+          "label": "输入 Cobb 角",
+          "value": "48°"
+        },
+        {
+          "label": "示意目标",
+          "value": "24.0°"
+        },
+        {
+          "label": "柔韧性",
+          "value": "55%"
+        }
+      ],
+      "ranked_options": [
+        {
+          "name": "标准矫形路径",
+          "score": 82,
+          "reason": "按柔韧性估算矫正目标，节段范围仅为初始讨论草案。"
+        },
+        {
+          "name": "分期评估路径",
+          "score": 62,
+          "reason": "在大角度或低柔韧性病例中优先补齐动态片与风险评估。"
+        }
+      ],
+      "sensitivity": {
+        "parameter": "flexibility_pct",
+        "label": "柔韧性",
+        "unit": "%",
+        "metric": "示意目标 Cobb 角（°）",
+        "baseline": 55.0,
+        "points": [
+          {
+            "x": 15,
+            "y": 31.7,
+            "option": "分期评估路径"
+          },
+          {
+            "x": 30,
+            "y": 28.8,
+            "option": "分期评估路径"
+          },
+          {
+            "x": 45,
+            "y": 25.9,
+            "option": "标准矫形路径"
+          },
+          {
+            "x": 60,
+            "y": 23.0,
+            "option": "标准矫形路径"
+          },
+          {
+            "x": 75,
+            "y": 20.2,
+            "option": "标准矫形路径"
+          },
+          {
+            "x": 90,
+            "y": 17.3,
+            "option": "标准矫形路径"
+          }
+        ],
+        "note": "仅改变一个输入参数，其他条件保持固定；用于理解规则响应。"
+      },
+      "calculation": [
+        "矫正比例 = 28% + 55% × 0.4 = 50%（合法输入对应 28%–68%）",
+        "示意目标 = 48° × (1 − 50%) = 24.0°",
+        "顶椎区域对应的讨论范围：胸椎顶椎上下各 3 节段（示意）"
+      ]
+    },
+    {
+      "code": "SPINE-LOW-FLEX",
+      "scenario": "spine",
+      "input": {
+        "cobb_angle": 70,
+        "flexibility_pct": 15,
+        "coronal_balance_mm": 28,
+        "apex_region": "thoracic"
+      },
+      "metrics": [
+        {
+          "label": "输入 Cobb 角",
+          "value": "70°"
+        },
+        {
+          "label": "示意目标",
+          "value": "46.2°"
+        },
+        {
+          "label": "柔韧性",
+          "value": "15%"
+        }
+      ],
+      "ranked_options": [
+        {
+          "name": "分期评估路径",
+          "score": 76,
+          "reason": "在大角度或低柔韧性病例中优先补齐动态片与风险评估。"
+        },
+        {
+          "name": "标准矫形路径",
+          "score": 69,
+          "reason": "按柔韧性估算矫正目标，节段范围仅为初始讨论草案。"
+        }
+      ],
+      "sensitivity": {
+        "parameter": "flexibility_pct",
+        "label": "柔韧性",
+        "unit": "%",
+        "metric": "示意目标 Cobb 角（°）",
+        "baseline": 15.0,
+        "points": [
+          {
+            "x": 15,
+            "y": 46.2,
+            "option": "分期评估路径"
+          },
+          {
+            "x": 30,
+            "y": 42.0,
+            "option": "分期评估路径"
+          },
+          {
+            "x": 45,
+            "y": 37.8,
+            "option": "标准矫形路径"
+          },
+          {
+            "x": 60,
+            "y": 33.6,
+            "option": "标准矫形路径"
+          },
+          {
+            "x": 75,
+            "y": 29.4,
+            "option": "标准矫形路径"
+          },
+          {
+            "x": 90,
+            "y": 25.2,
+            "option": "标准矫形路径"
+          }
+        ],
+        "note": "仅改变一个输入参数，其他条件保持固定；用于理解规则响应。"
+      },
+      "calculation": [
+        "矫正比例 = 28% + 15% × 0.4 = 34%（合法输入对应 28%–68%）",
+        "示意目标 = 70° × (1 − 34%) = 46.2°",
+        "顶椎区域对应的讨论范围：胸椎顶椎上下各 3 节段（示意）"
+      ]
+    },
+    {
+      "code": "HIP-BASE",
+      "scenario": "joint",
+      "input": {
+        "joint_type": "hip",
+        "bone_diameter_mm": 52,
+        "canal_width_mm": 13,
+        "offset_mm": 42,
+        "bone_quality": "normal"
+      },
+      "metrics": [
+        {
+          "label": "骨性尺寸",
+          "value": "52 mm"
+        },
+        {
+          "label": "髓腔宽度",
+          "value": "13 mm"
+        },
+        {
+          "label": "首选评分",
+          "value": "100"
+        }
+      ],
+      "ranked_options": [
+        {
+          "name": "演示髋臼杯 H52",
+          "score": 100,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -0.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -0.0
+            },
+            {
+              "label": "偏心距差 × 1.5",
+              "value": -0.0
+            }
+          ],
+          "weighted_error": 0.0,
+          "dimensions": {
+            "diameter": 52,
+            "canal": 13,
+            "offset": 42
+          },
+          "deviations": {
+            "diameter": 0.0,
+            "canal": 0.0,
+            "offset": 0.0
+          },
+          "reason": "外径 52 mm；髓腔参考 13 mm；偏心距 42 mm"
+        },
+        {
+          "name": "演示髋臼杯 H48",
+          "score": 77,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -12.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -5.0
+            },
+            {
+              "label": "偏心距差 × 1.5",
+              "value": -6.0
+            }
+          ],
+          "weighted_error": 23.0,
+          "dimensions": {
+            "diameter": 48,
+            "canal": 12,
+            "offset": 38
+          },
+          "deviations": {
+            "diameter": 4.0,
+            "canal": 1.0,
+            "offset": 4.0
+          },
+          "reason": "外径 48 mm；髓腔参考 12 mm；偏心距 38 mm"
+        },
+        {
+          "name": "演示髋臼杯 H56",
+          "score": 77,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -12.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -5.0
+            },
+            {
+              "label": "偏心距差 × 1.5",
+              "value": -6.0
+            }
+          ],
+          "weighted_error": 23.0,
+          "dimensions": {
+            "diameter": 56,
+            "canal": 14,
+            "offset": 46
+          },
+          "deviations": {
+            "diameter": 4.0,
+            "canal": 1.0,
+            "offset": 4.0
+          },
+          "reason": "外径 56 mm；髓腔参考 14 mm；偏心距 46 mm"
+        },
+        {
+          "name": "演示髋臼杯 H44",
+          "score": 54,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -24.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -10.0
+            },
+            {
+              "label": "偏心距差 × 1.5",
+              "value": -12.0
+            }
+          ],
+          "weighted_error": 46.0,
+          "dimensions": {
+            "diameter": 44,
+            "canal": 11,
+            "offset": 34
+          },
+          "deviations": {
+            "diameter": 8.0,
+            "canal": 2.0,
+            "offset": 8.0
+          },
+          "reason": "外径 44 mm；髓腔参考 11 mm；偏心距 34 mm"
+        },
+        {
+          "name": "演示髋臼杯 H60",
+          "score": 54,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -24.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -10.0
+            },
+            {
+              "label": "偏心距差 × 1.5",
+              "value": -12.0
+            }
+          ],
+          "weighted_error": 46.0,
+          "dimensions": {
+            "diameter": 60,
+            "canal": 15,
+            "offset": 50
+          },
+          "deviations": {
+            "diameter": 8.0,
+            "canal": 2.0,
+            "offset": 8.0
+          },
+          "reason": "外径 60 mm；髓腔参考 15 mm；偏心距 50 mm"
+        }
+      ],
+      "sensitivity": {
+        "parameter": "bone_diameter_mm",
+        "label": "骨性尺寸",
+        "unit": "mm",
+        "metric": "首选候选评分",
+        "baseline": 52.0,
+        "points": [
+          {
+            "x": 48.0,
+            "y": 89,
+            "option": "演示髋臼杯 H48"
+          },
+          {
+            "x": 50.0,
+            "y": 94,
+            "option": "演示髋臼杯 H52"
+          },
+          {
+            "x": 52.0,
+            "y": 100,
+            "option": "演示髋臼杯 H52"
+          },
+          {
+            "x": 54.0,
+            "y": 94,
+            "option": "演示髋臼杯 H52"
+          },
+          {
+            "x": 56.0,
+            "y": 89,
+            "option": "演示髋臼杯 H56"
+          }
+        ],
+        "note": "仅改变一个输入参数，其他条件保持固定；用于理解规则响应。"
+      },
+      "calculation": [
+        "尺寸误差 = 外径差 × 3 + 髓腔差 × 5 + 偏心距差 × 1.5",
+        "骨质偏低时，统一增加 4 分误差惩罚；评分 = max(0, round(100 − 误差))。",
+        "目录包含髋、膝各 5 个虚构规格；髓腔和偏心距为演示组合参数。"
+      ]
+    },
+    {
+      "code": "KNEE-BASE",
+      "scenario": "joint",
+      "input": {
+        "joint_type": "knee",
+        "bone_diameter_mm": 66,
+        "canal_width_mm": 12,
+        "bone_quality": "normal"
+      },
+      "metrics": [
+        {
+          "label": "骨性尺寸",
+          "value": "66 mm"
+        },
+        {
+          "label": "髓腔宽度",
+          "value": "12 mm"
+        },
+        {
+          "label": "首选评分",
+          "value": "100"
+        }
+      ],
+      "ranked_options": [
+        {
+          "name": "演示膝关节组件 K66",
+          "score": 100,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -0.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -0.0
+            }
+          ],
+          "weighted_error": 0.0,
+          "dimensions": {
+            "diameter": 66,
+            "canal": 12,
+            "offset": 0
+          },
+          "deviations": {
+            "diameter": 0.0,
+            "canal": 0.0,
+            "offset": 0
+          },
+          "reason": "外径 66 mm；髓腔参考 12 mm"
+        },
+        {
+          "name": "演示膝关节组件 K62",
+          "score": 83,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -12.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -5.0
+            }
+          ],
+          "weighted_error": 17.0,
+          "dimensions": {
+            "diameter": 62,
+            "canal": 11,
+            "offset": 0
+          },
+          "deviations": {
+            "diameter": 4.0,
+            "canal": 1.0,
+            "offset": 0
+          },
+          "reason": "外径 62 mm；髓腔参考 11 mm"
+        },
+        {
+          "name": "演示膝关节组件 K70",
+          "score": 83,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -12.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -5.0
+            }
+          ],
+          "weighted_error": 17.0,
+          "dimensions": {
+            "diameter": 70,
+            "canal": 13,
+            "offset": 0
+          },
+          "deviations": {
+            "diameter": 4.0,
+            "canal": 1.0,
+            "offset": 0
+          },
+          "reason": "外径 70 mm；髓腔参考 13 mm"
+        },
+        {
+          "name": "演示膝关节组件 K58",
+          "score": 66,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -24.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -10.0
+            }
+          ],
+          "weighted_error": 34.0,
+          "dimensions": {
+            "diameter": 58,
+            "canal": 10,
+            "offset": 0
+          },
+          "deviations": {
+            "diameter": 8.0,
+            "canal": 2.0,
+            "offset": 0
+          },
+          "reason": "外径 58 mm；髓腔参考 10 mm"
+        },
+        {
+          "name": "演示膝关节组件 K74",
+          "score": 66,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 100
+            },
+            {
+              "label": "外径差 × 3",
+              "value": -24.0
+            },
+            {
+              "label": "髓腔差 × 5",
+              "value": -10.0
+            }
+          ],
+          "weighted_error": 34.0,
+          "dimensions": {
+            "diameter": 74,
+            "canal": 14,
+            "offset": 0
+          },
+          "deviations": {
+            "diameter": 8.0,
+            "canal": 2.0,
+            "offset": 0
+          },
+          "reason": "外径 74 mm；髓腔参考 14 mm"
+        }
+      ],
+      "sensitivity": {
+        "parameter": "bone_diameter_mm",
+        "label": "骨性尺寸",
+        "unit": "mm",
+        "metric": "首选候选评分",
+        "baseline": 66.0,
+        "points": [
+          {
+            "x": 62.0,
+            "y": 95,
+            "option": "演示膝关节组件 K62"
+          },
+          {
+            "x": 64.0,
+            "y": 94,
+            "option": "演示膝关节组件 K66"
+          },
+          {
+            "x": 66.0,
+            "y": 100,
+            "option": "演示膝关节组件 K66"
+          },
+          {
+            "x": 68.0,
+            "y": 94,
+            "option": "演示膝关节组件 K66"
+          },
+          {
+            "x": 70.0,
+            "y": 95,
+            "option": "演示膝关节组件 K70"
+          }
+        ],
+        "note": "仅改变一个输入参数，其他条件保持固定；用于理解规则响应。"
+      },
+      "calculation": [
+        "尺寸误差 = 外径差 × 3 + 髓腔差 × 5",
+        "骨质偏低时，统一增加 4 分误差惩罚；评分 = max(0, round(100 − 误差))。",
+        "目录包含髋、膝各 5 个虚构规格；髓腔和偏心距为演示组合参数。"
+      ]
+    },
+    {
+      "code": "TRAUMA-INTACT",
+      "scenario": "trauma",
+      "input": {
+        "fracture_site": "tibia",
+        "fracture_pattern": "comminuted",
+        "displacement_mm": 18,
+        "articular_involvement": true,
+        "soft_tissue": "intact"
+      },
+      "metrics": [
+        {
+          "label": "骨折部位",
+          "value": "胫骨"
+        },
+        {
+          "label": "移位",
+          "value": "18 mm"
+        },
+        {
+          "label": "首选评分",
+          "value": "85"
+        }
+      ],
+      "ranked_options": [
+        {
+          "name": "锁定钢板",
+          "score": 85,
+          "raw_score": 85,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 67
+            },
+            {
+              "label": "粉碎性骨折",
+              "value": 5
+            },
+            {
+              "label": "关节面受累",
+              "value": 13
+            }
+          ],
+          "reason": "适用于需要直接复位与角稳定讨论的场景。"
+        },
+        {
+          "name": "髓内钉",
+          "score": 74,
+          "raw_score": 74,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 68
+            },
+            {
+              "label": "股骨或胫骨",
+              "value": 13
+            },
+            {
+              "label": "粉碎性骨折",
+              "value": 3
+            },
+            {
+              "label": "关节面受累",
+              "value": -10
+            }
+          ],
+          "reason": "适用于长骨髓腔内固定讨论的场景。"
+        },
+        {
+          "name": "外固定架",
+          "score": 48,
+          "raw_score": 48,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 42
+            },
+            {
+              "label": "移位 >15 mm",
+              "value": 6
+            }
+          ],
+          "reason": "可用于软组织条件受限时的阶段性稳定讨论。"
+        }
+      ],
+      "sensitivity": {
+        "parameter": "displacement_mm",
+        "label": "移位距离",
+        "unit": "mm",
+        "metric": "首选候选评分",
+        "baseline": 18.0,
+        "points": [
+          {
+            "x": 5,
+            "y": 85,
+            "option": "锁定钢板"
+          },
+          {
+            "x": 10,
+            "y": 85,
+            "option": "锁定钢板"
+          },
+          {
+            "x": 15,
+            "y": 85,
+            "option": "锁定钢板"
+          },
+          {
+            "x": 20,
+            "y": 85,
+            "option": "锁定钢板"
+          },
+          {
+            "x": 30,
+            "y": 85,
+            "option": "锁定钢板"
+          }
+        ],
+        "note": "仅改变一个输入参数，其他条件保持固定；用于理解规则响应。"
+      },
+      "calculation": [
+        "基础分：锁定钢板 67，髓内钉 68，外固定架 42。",
+        "桡骨：钢板 +15、髓内钉 −25；其他长骨：髓内钉 +13。",
+        "粉碎：钢板 +5、髓内钉 +3；关节面受累：钢板 +13、髓内钉 −10。",
+        "软组织受损：外固定架 +38、钢板 −16、髓内钉 −10；移位 >15 mm：外固定架 +6。"
+      ]
+    },
+    {
+      "code": "TRAUMA-COMPROMISED",
+      "scenario": "trauma",
+      "input": {
+        "fracture_site": "tibia",
+        "fracture_pattern": "comminuted",
+        "displacement_mm": 18,
+        "articular_involvement": true,
+        "soft_tissue": "compromised"
+      },
+      "metrics": [
+        {
+          "label": "骨折部位",
+          "value": "胫骨"
+        },
+        {
+          "label": "移位",
+          "value": "18 mm"
+        },
+        {
+          "label": "首选评分",
+          "value": "86"
+        }
+      ],
+      "ranked_options": [
+        {
+          "name": "外固定架",
+          "score": 86,
+          "raw_score": 86,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 42
+            },
+            {
+              "label": "软组织受损",
+              "value": 38
+            },
+            {
+              "label": "移位 >15 mm",
+              "value": 6
+            }
+          ],
+          "reason": "可用于软组织条件受限时的阶段性稳定讨论。"
+        },
+        {
+          "name": "锁定钢板",
+          "score": 69,
+          "raw_score": 69,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 67
+            },
+            {
+              "label": "粉碎性骨折",
+              "value": 5
+            },
+            {
+              "label": "关节面受累",
+              "value": 13
+            },
+            {
+              "label": "软组织受损",
+              "value": -16
+            }
+          ],
+          "reason": "适用于需要直接复位与角稳定讨论的场景。"
+        },
+        {
+          "name": "髓内钉",
+          "score": 64,
+          "raw_score": 64,
+          "score_breakdown": [
+            {
+              "label": "基础分",
+              "value": 68
+            },
+            {
+              "label": "股骨或胫骨",
+              "value": 13
+            },
+            {
+              "label": "粉碎性骨折",
+              "value": 3
+            },
+            {
+              "label": "关节面受累",
+              "value": -10
+            },
+            {
+              "label": "软组织受损",
+              "value": -10
+            }
+          ],
+          "reason": "适用于长骨髓腔内固定讨论的场景。"
+        }
+      ],
+      "sensitivity": {
+        "parameter": "displacement_mm",
+        "label": "移位距离",
+        "unit": "mm",
+        "metric": "首选候选评分",
+        "baseline": 18.0,
+        "points": [
+          {
+            "x": 5,
+            "y": 80,
+            "option": "外固定架"
+          },
+          {
+            "x": 10,
+            "y": 80,
+            "option": "外固定架"
+          },
+          {
+            "x": 15,
+            "y": 80,
+            "option": "外固定架"
+          },
+          {
+            "x": 20,
+            "y": 86,
+            "option": "外固定架"
+          },
+          {
+            "x": 30,
+            "y": 86,
+            "option": "外固定架"
+          }
+        ],
+        "note": "仅改变一个输入参数，其他条件保持固定；用于理解规则响应。"
+      },
+      "calculation": [
+        "基础分：锁定钢板 67，髓内钉 68，外固定架 42。",
+        "桡骨：钢板 +15、髓内钉 −25；其他长骨：髓内钉 +13。",
+        "粉碎：钢板 +5、髓内钉 +3；关节面受累：钢板 +13、髓内钉 −10。",
+        "软组织受损：外固定架 +38、钢板 −16、髓内钉 −10；移位 >15 mm：外固定架 +6。"
+      ]
+    }
+  ]
+}

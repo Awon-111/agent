@@ -1,0 +1,58 @@
+{
+  "verified_on": "2026-11-18",
+  "notice": "Dataset-wide counts are not orthopedic counts; listed sources can overlap in PMC articles. Integration counts are in manifest.json.",
+  "sources": [
+    {
+      "name": "MedCaseReasoning",
+      "repository": "https://github.com/kevinwu23/Stanford-MedCaseReasoning",
+      "data": "https://huggingface.co/datasets/zou-lab/MedCaseReasoning",
+      "total_cases": 14489,
+      "orthopedic_count": "computed in manifest.json after filtering",
+      "license": "Dataset CC BY 4.0 per official repository; HF card labels MIT; retain original article notices",
+      "content": "case presentation, source article text, diagnosis/reasoning labels",
+      "use": "Only source narratives from train; generated reasoning labels not used as clinical truth",
+      "integration_status": "integrated: complete official CSV downloaded and SHA256 verified",
+      "imported_articles": 78
+    },
+    {
+      "name": "PMC-Patients",
+      "repository": "https://github.com/pmc-patients/pmc-patients",
+      "data": "https://huggingface.co/datasets/zhengyun21/PMC-Patients",
+      "total_cases": "approximately 167k patient summaries in the CSV; V2 is separate",
+      "license": "CC-BY-NC-SA-4.0",
+      "content": "patient summaries, demographics, patient/article retrieval relations",
+      "use": "Reference summaries; deduplicate by source article; exclude MedCaseReasoning val/test articles",
+      "integration_status": "integrated: complete official CSV downloaded and SHA256 verified",
+      "imported_articles": 1284
+    },
+    {
+      "name": "CaseReportCollective",
+      "repository": "https://github.com/cindyzhangxy/CaseReportCollective",
+      "data": "https://huggingface.co/datasets/cxyzhang/CaseReportCollective_V1.0",
+      "total_cases": 85961,
+      "license": "Annotations CC-BY-NC-4.0; original articles retain individual licenses",
+      "content": "case narratives, 14 categories including MSK; LLM-extracted fields",
+      "use": "Verified candidate; not imported. Requires orthopedic filtering, article-license checks and cross-source deduplication",
+      "integration_status": "verified candidate; not imported"
+    },
+    {
+      "name": "MedPix 2.0",
+      "repository": "https://github.com/CHILab1/MedPix-2.0",
+      "license": "Review MedPix and individual case/image licensing; do not assume repository access grants unrestricted reuse",
+      "content": "history, examination, imaging findings, differential diagnosis and disease discussion",
+      "use": "Verified candidate; not imported. Better suited to future image-case linking; current agent does not interpret images",
+      "integration_status": "verified candidate; not imported"
+    },
+    {
+      "name": "MedR-Bench",
+      "repository": "https://github.com/MAGIC-AI4Med/MedRBench",
+      "paper": "https://www.nature.com/articles/s41467-025-64769-1",
+      "total_cases": 1453,
+      "treatment_cases": 496,
+      "license": "Dataset CC BY-NC-SA per paper; code license is separate",
+      "content": "examination recommendation, diagnosis, treatment plans and reasoning references",
+      "use": "Verified candidate for a separately held-out evaluation; not inserted into reference corpus",
+      "integration_status": "verified candidate; not imported"
+    }
+  ]
+}
