@@ -189,8 +189,8 @@
     },
     {
       "path": "docs/REPORT_CHANGES.md",
-      "bytes": 1593,
-      "sha256": "e2812d4abe06b5d9ad2b89173320ab60ecfc2d707b83d3bad8e9b679c9acdcdf"
+      "bytes": 2435,
+      "sha256": "d4ec34fc5e616d6b60a459f68b3ace658b7609ca2f81255e105873ac61d401af"
     },
     {
       "path": "docs/SUBMISSION.md",
@@ -209,8 +209,8 @@
     },
     {
       "path": "docs/骨科规划智能体_实验报告.docx",
-      "bytes": 2065708,
-      "sha256": "844f3f14ed279004b840bcbe290dfa4db2fd6861a63ba19e2022838c2561bd02"
+      "bytes": 2070919,
+      "sha256": "6b7e0c53f25f08e3b3542f61e7a77bf3a33f824e5b4da800bfdae9b76573bc90"
     },
     {
       "path": "evidence.py",
