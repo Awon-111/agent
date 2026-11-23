@@ -431,16 +431,19 @@ class WorkflowTests(unittest.TestCase):
                 return copy.deepcopy(valid_output)
             return genuine_runner(*args, **kwargs)
 
-        with patch.object(agent, "RUN_TIMEOUT", 0.2), patch.object(agent, "run_agent", side_effect=blocked_first_run):
-            started = self.request(f"/api/cases/{case_id}/analyze", {})
+        with patch.object(agent, "run_agent", side_effect=blocked_first_run):
             try:
-                self.assertTrue(entered.wait(2))
-                expired = self.wait_run(started["run_id"])
-                self.assertEqual(expired["status"], "failed")
-                self.assertIsNone(expired["plan_id"])
-                self.assertTrue(expired["error"])
-                self.assertEqual(self.request(f"/api/cases/{case_id}")["plans"], [])
-                expired_events = copy.deepcopy(expired["events"])
+                # Only the deliberately blocked task needs the short deadline.
+                # A real retry also runs retrieval and must use the normal limit.
+                with patch.object(agent, "RUN_TIMEOUT", 0.2):
+                    started = self.request(f"/api/cases/{case_id}/analyze", {})
+                    self.assertTrue(entered.wait(2))
+                    expired = self.wait_run(started["run_id"])
+                    self.assertEqual(expired["status"], "failed")
+                    self.assertIsNone(expired["plan_id"])
+                    self.assertTrue(expired["error"])
+                    self.assertEqual(self.request(f"/api/cases/{case_id}")["plans"], [])
+                    expired_events = copy.deepcopy(expired["events"])
                 retried = self.generate_plan(case_id)
                 self.assertNotEqual(retried["run"]["run_id"], started["run_id"])
             finally:
